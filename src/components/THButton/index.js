@@ -7,10 +7,11 @@ const THButton = (props) => {
     const {
         style={},
         textStyle={},
-        children='sign'
+        children='sign',
+        disabled=false
     } = props
     return (
-        <TouchableOpacity onPress={props.onPress} style={{...styles.touchableOpacity,...style}}>
+        <TouchableOpacity disabled={disabled} onPress={props.onPress} style={{...styles.touchableOpacity,...style}}>
             <LinearGradient start={{x:0,y:0}} end={{x:1,y:0}} colors={['#9b63cd', '#DD6989']} style={styles.linearGradient}>
                 <Text style={{...styles.buttonText,...textStyle}}>
                     {children}
