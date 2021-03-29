@@ -9,6 +9,8 @@ import {ACCOUNT_LOGIN, ACCOUNT_VALIDATEVCODE} from '../../../utils/pathMap';
 import THButton from '../../../components/THButton';
 import THCode from '../../../components/THCodeField';
 import Toast from 'teaset/components/Toast/Toast';
+import Geo from '../../../utils/Geo';
+import {inject, observer} from 'mobx-react';
 
 const Login = (props) => {
 
@@ -18,9 +20,6 @@ const Login = (props) => {
     const [btnText, setBtnText] = React.useState('重获验证码'); // 获取验证码按钮的文本
     const [isCountDowning, setIsCountDowning] = React.useState(false); // 是否在倒计时中
     const [vcodeText, setVcodeText] = useState(''); // 验证码文本
-
-    React.useEffect(() => {
-    }, []);
 
     /**
      * 付民康  2021/3/12
@@ -108,6 +107,7 @@ const Login = (props) => {
         /*
         * 1.对验证码做校验——长度检验
         * 2.将手机号和验证码一起发送到后台
+        *       将用户数据存放在mobx中
         * 3.返回值渲染不同页面
         * 4.新用户->完善个人信息
         * 5.老用户->交友-首页
@@ -127,6 +127,9 @@ const Login = (props) => {
             console.log(res);
             return;
         }
+        // 存取用户数据到mobx中
+        props.RootStore.setUserInfo(phoneNumber,res.data.token,res.data.id);
+
         if(res.data.isNew) {
             // 新用户
             alert("新用户 跳转到信息页面")
@@ -250,4 +253,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Login;
+export default inject('RootStore')(observer(Login));
