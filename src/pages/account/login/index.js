@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, Image, StatusBar, StyleSheet} from 'react-native';
+import {View, Text, Image, StatusBar, StyleSheet, AsyncStorage} from 'react-native';
 import {pxToDp} from '../../../utils/stylesKits';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Input} from 'react-native-elements';
@@ -9,7 +9,6 @@ import {ACCOUNT_LOGIN, ACCOUNT_VALIDATEVCODE} from '../../../utils/pathMap';
 import THButton from '../../../components/THButton';
 import THCode from '../../../components/THCodeField';
 import Toast from 'teaset/components/Toast/Toast';
-import Geo from '../../../utils/Geo';
 import {inject, observer} from 'mobx-react';
 
 const Login = (props) => {
@@ -20,6 +19,13 @@ const Login = (props) => {
     const [btnText, setBtnText] = React.useState('重获验证码'); // 获取验证码按钮的文本
     const [isCountDowning, setIsCountDowning] = React.useState(false); // 是否在倒计时中
     const [vcodeText, setVcodeText] = useState(''); // 验证码文本
+
+    React.useEffect(() => {
+        console.log(props.RootStore)
+        if (props.RootStore.mobile && props.RootStore.token && props.RootStore.userId) {
+            props.navigation.navigate('Userinfo');
+        }
+    }, []);
 
     /**
      * 付民康  2021/3/12
@@ -113,30 +119,38 @@ const Login = (props) => {
         * 5.老用户->交友-首页
         * */
         // 1.对验证码做校验——长度检验
-        if (vcodeText.length!=6) {
-            Toast.message("验证码不正确",2000,"center");
+        if (vcodeText.length != 6) {
+            Toast.message('验证码不正确', 2000, 'center');
             return;
         }
         // 2.将手机号和验证码一起发送到后台
-        const res = await request.post(ACCOUNT_VALIDATEVCODE,{
-            phone:phoneNumber,
-            vcode:vcodeText
-        })
-        if (res.code!="10000") {
-            Toast.message("验证码不正确",2000,"center");
+        const res = await request.post(ACCOUNT_VALIDATEVCODE, {
+            phone: phoneNumber,
+            vcode: vcodeText,
+        });
+        if (res.code != '10000') {
+            Toast.message('验证码不正确', 2000, 'center');
             console.log(res);
             return;
         }
         // 存取用户数据到mobx中
-        props.RootStore.setUserInfo(phoneNumber,res.data.token,res.data.id);
-
-        if(res.data.isNew) {
+        props.RootStore.setUserInfo(phoneNumber, res.data.token, res.data.id);
+        // 存储用户数据到本地缓存中，永久存储
+        AsyncStorage.setItem('userinfo',JSON.stringify(
+            {
+                mobile:phoneNumber,
+                token:res.data.token,
+                userId:res.data.id
+            }
+        )) //必须将对象转换成字符串格式，不然就会数据丢失
+        if (res.data.isNew) {
             // 新用户
-            alert("新用户 跳转到信息页面")
-            props.navigation.navigate("Userinfo");
+            alert('新用户 跳转到信息页面');
+            props.navigation.navigate('Userinfo');
         } else {
             // 老用户
-            alert("老用户 跳转到交友页面")
+            alert('老用户 跳转到交友页面');
+            props.navigation.navigate('Tabbar');
         }
     };
 

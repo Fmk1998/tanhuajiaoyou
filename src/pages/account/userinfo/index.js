@@ -14,7 +14,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {Overlay} from 'teaset';
 import {inject, observer} from 'mobx-react';
 import request from '../../../utils/request';
-import {ACCOUNT_CHECKHEADIMAGE, ACCOUNT_VALIDATEVCODE} from '../../../utils/pathMap';
+import {ACCOUNT_CHECKHEADIMAGE, ACCOUNT_REGINFO, ACCOUNT_VALIDATEVCODE} from '../../../utils/pathMap';
 
 const Userinfo = (props) => {
     const dateNow = new Date();
@@ -29,7 +29,6 @@ const Userinfo = (props) => {
     const [address, setAddress] = React.useState('/upload/13828459787.jpg'); // 详细的地址
 
     React.useEffect(() => {
-        console.log(props);
         init();
     }, []);
 
@@ -40,6 +39,8 @@ const Userinfo = (props) => {
         if (res) {
             setAddress(res.regeocode.formatted_address);
             setCity(res.addressComponent.city.replace('市', ''));
+            setLng(res.regeocode.addressComponent.streetNumber.location.split(',')[0]);
+            setLat(res.regeocode.addressComponent.streetNumber.location.split(',')[1]);
         }
     };
 
@@ -101,12 +102,13 @@ const Userinfo = (props) => {
         // 3 将选择好的图片 上传到 后台
 
         // 显示审核中的效果
+        let overlayViewRef = null;
         let overlayView = (
             <Overlay.View
                 style={{flex: 1, backgroundColor: '#000'}}
                 modal={true}
                 overlayOpacity={0}
-                ref={v => overlayView = v}
+                ref={v => overlayViewRef = v}
             >
                 <View style={{
                     marginTop: pxToDp(30),
@@ -131,13 +133,28 @@ const Userinfo = (props) => {
         // 打开调试模式-调试工具，对网络会拦截处理，导致一些请求失败
         // 不要打开任何调试工具 使用控制台即可
         console.log(res0);
-        if (res0.code === '10000') {
-            // 成功
-        } else {
+        if (res0.code !== '10000') {
             // 失败
+            // 关闭头像审核浮层
+            overlayViewRef.close();
+            return;
         }
+        // 关闭头像审核浮层
+        overlayViewRef.close();
         // 5 成功 执行极光的注册 极光的登录（在线聊天功能）
-
+        let params = {
+            nickname,
+            gender,
+            birthday,
+            city,
+            lng,
+            lat,
+            address
+        };
+        params.header=res0.data.headImgPath;
+        console.log(params);
+        const res1 = await request.privatePost(ACCOUNT_REGINFO,params);
+        console.log(res1);
     };
 
     /**

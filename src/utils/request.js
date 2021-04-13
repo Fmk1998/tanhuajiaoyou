@@ -31,15 +31,15 @@ export default {
     get: instance.get,
     post: instance.post,
     // post 自动带上token
-    privatePost: (url, data = {}, options = {})=> {
-    const token = RootStore.token;
-    const headers = options.headers||{};
-    return instance.post(url,data,{
-        ...options,
-        headers:{
-            'Authorization': `Bearer ${token}`,
-            ...headers
-        }
-    })
-}
-}
+    privatePost: (url, data = {}, options = {}) => {
+        const token = RootStore.token;
+        const headers = options.headers || {};
+        return instance.post(url, data, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                ...headers,
+            },
+        });
+    },
+};

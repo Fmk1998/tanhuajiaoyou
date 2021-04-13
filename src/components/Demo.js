@@ -8,6 +8,8 @@ import {
     useClearByFocusCell,
 } from 'react-native-confirmation-code-field';
 
+// import JMessage from "jmessage-react-plugin"
+
 const styles = StyleSheet.create({
     root: {flex: 1, padding: 20},
     title: {textAlign: 'center', fontSize: 30},
@@ -20,7 +22,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 2,
         borderColor: '#00000030',
         textAlign: 'center',
-        color:'#7d53ea'
+        color: '#7d53ea',
     },
     focusCell: {
         borderColor: '#7d53ea',
@@ -36,6 +38,27 @@ const Demo = () => {
         value,
         setValue,
     });
+
+
+    React.useEffect(() => {
+        // JMessage.init({
+        //     'appkey': 'a50ee9e650224722fd0d3d66',
+        //     'isOpenMessageRoaming': true,
+        //     'isProduction': false,
+        //     'channel': '',
+        // });
+        //
+        // JMessage.login({
+        //     username: '18665711956',
+        //     password: '18665711956',
+        // }, (res) => {
+        //     console.log('登录成功');
+        //     console.log(res);
+        // }, (err) => {
+        //     console.log('登录失败');
+        //     console.log(err);
+        // });
+    }, []);
 
     return (
         <SafeAreaView style={styles.root}>
@@ -53,7 +76,7 @@ const Demo = () => {
                         key={index}
                         style={[styles.cell, isFocused && styles.focusCell]}
                         onLayout={getCellOnLayoutHandler(index)}>
-                        {symbol || (isFocused ? <Cursor /> : null)}
+                        {symbol || (isFocused ? <Cursor/> : null)}
                     </Text>
                 )}
             />
